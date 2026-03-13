@@ -4,6 +4,7 @@ let currentTabId = null;
 let pageData = null;
 let highlightEnabled = false;
 let selectedColor = '#ffef5c';
+let darkModeEnabled = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
 
@@ -199,3 +200,15 @@ function copySummary() {
     setTimeout(() => { btn.textContent = '📋 Copy Page Summary'; }, 2000);
   });
 }
+
+// Dark mode toggle handler
+document.getElementById('dark-mode-toggle').addEventListener('click', () => {
+  darkModeEnabled = !darkModeEnabled;
+  const sw = document.getElementById('dark-toggle-switch');
+  sw.classList.toggle('on', darkModeEnabled);
+
+  chrome.tabs.sendMessage(currentTabId, {
+    type: 'TOGGLE_DARK_MODE',
+    enabled: darkModeEnabled
+  });
+});
