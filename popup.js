@@ -127,7 +127,8 @@ function setupHighlightPanel() {
 
 
 function setupStoragePanel() {
-  document.getElementById('save-page-btn').addEventListener('click', saveCurrentPage);
+  // document.getElementById('save-page-btn').addEventListener('click', saveCurrentPage);
+  document.getElementById('copy-summary-btn').addEventListener('click', copySummary);
   document.getElementById('clear-storage-btn').addEventListener('click', clearAllSaved);
 }
 
@@ -179,4 +180,22 @@ async function clearAllSaved() {
   const pageKeys = Object.keys(allData).filter(k => k.startsWith('page_'));
   await chrome.storage.local.remove(pageKeys);
   await loadSavedPages();
+}
+
+function copySummary() {
+  if (!pageData) return;
+
+  const text = `📄 ${pageData.title}
+🔗 ${pageData.url}
+📝 ${pageData.wordCount.toLocaleString()} words — ${pageData.readingTime} min read
+🖼 ${pageData.imageCount} images · 🔗 ${pageData.linkCount} links`;
+
+  // navigator.clipboard is the modern clipboard API
+  // It requires the page to be served over https or localhost
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-summary-btn');
+    btn.textContent = '✅ Copied!';
+    // Reset button text after 2 seconds
+    setTimeout(() => { btn.textContent = '📋 Copy Page Summary'; }, 2000);
+  });
 }
