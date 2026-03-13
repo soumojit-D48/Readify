@@ -70,10 +70,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     case 'TOGGLE_DARK_MODE':
       const html = document.documentElement;
-      if (message.enabled) {
+      const isDark = html.style.filter.includes('invert');
+      
+      if (isDark) {
+        html.style.filter = '';
+        const fix = document.getElementById('pagelens-dark-fix');
+        if (fix) fix.remove();
+      } else {
         html.style.filter = 'invert(1) hue-rotate(180deg)';
         html.style.transition = 'filter 0.3s ease';
-        // Images and videos, re-invert them so they look normal
         if (!document.getElementById('pagelens-dark-fix')) {
           const style = document.createElement('style');
           style.id = 'pagelens-dark-fix';
@@ -84,12 +89,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       `;
           document.head.appendChild(style);
         }
-      } else {
-        html.style.filter = '';
-        const fix = document.getElementById('pagelens-dark-fix');
-        if (fix) fix.remove();
       }
-      sendResponse({ ok: true });
+      sendResponse({ ok: true, isDarkMode: !isDark });
       break;
   }
 

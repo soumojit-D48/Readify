@@ -201,14 +201,19 @@ function copySummary() {
   });
 }
 
-// Dark mode toggle handler
-document.getElementById('dark-mode-toggle').addEventListener('click', () => {
-  darkModeEnabled = !darkModeEnabled;
-  const sw = document.getElementById('dark-toggle-switch');
-  sw.classList.toggle('on', darkModeEnabled);
-
-  chrome.tabs.sendMessage(currentTabId, {
-    type: 'TOGGLE_DARK_MODE',
-    enabled: darkModeEnabled
-  });
+// Theme toggle handler
+document.getElementById('dark-mode-toggle').addEventListener('click', async () => {
+  try {
+    const response = await chrome.tabs.sendMessage(currentTabId, {
+      type: 'TOGGLE_DARK_MODE'
+    });
+    
+    if (response && response.isDarkMode !== undefined) {
+      darkModeEnabled = response.isDarkMode;
+      const sw = document.getElementById('dark-toggle-switch');
+      sw.classList.toggle('on', darkModeEnabled);
+    }
+  } catch (err) {
+    console.error('Readify error:', err);
+  }
 });
