@@ -124,6 +124,30 @@ function setupHighlightPanel() {
   document.getElementById('clear-highlights').addEventListener('click', () => {
     chrome.tabs.sendMessage(currentTabId, { type: 'CLEAR_HIGHLIGHTS' });
   });
+
+  const fontSlider = document.getElementById('font-slider');
+  const fontLabel = document.getElementById('font-label');
+
+  fontSlider.addEventListener('input', () => {
+    const multiplier = parseFloat(fontSlider.value);
+    fontLabel.textContent = multiplier.toFixed(1) + 'x';
+
+    // Send multiplier to content.js on every slider move
+    chrome.tabs.sendMessage(currentTabId, {
+      type: 'SET_FONT_SIZE',
+      multiplier,
+      reset: false
+    });
+  });
+
+  document.getElementById('font-reset-btn').addEventListener('click', () => {
+    fontSlider.value = 1.0;
+    fontLabel.textContent = '1.0x';
+    chrome.tabs.sendMessage(currentTabId, {
+      type: 'SET_FONT_SIZE',
+      reset: true
+    });
+  });
 }
 
 
@@ -207,7 +231,7 @@ document.getElementById('dark-mode-toggle').addEventListener('click', async () =
     const response = await chrome.tabs.sendMessage(currentTabId, {
       type: 'TOGGLE_DARK_MODE'
     });
-    
+
     if (response && response.isDarkMode !== undefined) {
       darkModeEnabled = response.isDarkMode;
       const sw = document.getElementById('dark-toggle-switch');

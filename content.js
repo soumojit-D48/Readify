@@ -71,7 +71,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     case 'TOGGLE_DARK_MODE':
       const html = document.documentElement;
       const isDark = html.style.filter.includes('invert');
-      
+
       if (isDark) {
         html.style.filter = '';
         const fix = document.getElementById('pagelens-dark-fix');
@@ -91,6 +91,32 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }
       }
       sendResponse({ ok: true, isDarkMode: !isDark });
+      break;
+
+    case 'SET_FONT_SIZE':
+      const elements = document.querySelectorAll('*');
+
+      if (message.reset) {
+        elements.forEach(el => {
+          if (el.dataset.pagelensOrigFont) {
+            el.style.fontSize = el.dataset.pagelensOrigFont;
+            delete el.dataset.pagelensOrigFont;
+          }
+        });
+      } else {
+        elements.forEach(el => {
+          // Save original size only once, so reset always goes back to real original
+          if (!el.dataset.pagelensOrigFont) {
+            const computed = window.getComputedStyle(el).fontSize;
+            el.dataset.pagelensOrigFont = computed;
+          }
+          const original = parseFloat(el.dataset.pagelensOrigFont);
+          if (!isNaN(original)) {
+            el.style.fontSize = (original * message.multiplier) + 'px';
+          }
+        });
+      }
+      sendResponse({ ok: true });
       break;
   }
 

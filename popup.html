@@ -487,6 +487,19 @@
         </div>
       </div>
 
+      <div class="info-block" style="margin-bottom:12px">
+        <div class="info-label">Font Size</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-top:6px">
+          <!-- Range slider from 0.8 (min) to 2.0 (max) -->
+          <input type="range" id="font-slider" min="0.8" max="2.0" step="0.1" value="1.0"
+            style="flex:1; accent-color:#6c63ff; cursor:pointer">
+          <span id="font-label" style="font-size:12px; color:#3ecfcf; font-family:monospace; min-width:32px">1.0x</span>
+        </div>
+        <button class="btn secondary" id="font-reset-btn" style="margin-top:8px; font-size:11px; padding:6px">
+          Reset Font Size
+        </button>
+      </div>
+
       <div
         style="
           margin-bottom: 8px;
