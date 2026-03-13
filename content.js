@@ -1,9 +1,44 @@
 'use strict';
 
+// State 
 let highlightEnabled = false;
 let highlightColor = '#ffef5c';
 const HIGHLIGHT_CLASS = 'pagelens-highlight';
 
+// READING PROGRESS BAR
+function initProgressbar() {
+  const bar = document.createElement('div');
+  bar.id = 'pagelens-highlight';
+  bar.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, #6c63ff, #3ecfcf);
+    z-index: 999999;
+    transition: width 0.1s ease;
+    pointer-events: none;
+  `
+
+  document.documentElement.appendChild(bar);
+
+  window.addEventListener('scroll', () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = Math.min(progress, 100) + '%';
+  }, { passive: true });
+}
+
+// Run immediately when content script loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initProgressbar);
+} else {
+  initProgressbar();
+}
+
+// Message Listener
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   switch (message.type) {
@@ -38,6 +73,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 
+// COLLECT PAGE DATA
 function collectPageData() {
   const bodyText = document.body ? document.body.innerText || '' : '';
   const words = bodyText.trim().split(/\s+/).filter(w => w.length > 0);
@@ -72,6 +108,7 @@ function collectPageData() {
 }
 
 
+// HIGHLIGHT MODE
 function enableHighlightMode() {
   if (!document.getElementById('pagelens-styles')) {
     const style = document.createElement('style');
